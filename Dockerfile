@@ -28,22 +28,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
         uv sync --no-editable; \
     fi
 
-# Install LiteLLM proxy
-RUN pip install 'litellm[proxy]'
-
 ENV VIRTUAL_ENV="${UV_PROJECT_ENVIRONMENT}"
 ENV PYTHONPATH="/app/env:$PYTHONPATH"
 ENV ENABLE_WEB_INTERFACE=true
 
-# LiteLLM proxy will run on 4000, main server on 8000
-ENV API_BASE_URL=http://localhost:4000
-ENV API_KEY=${HF_TOKEN}
-ENV MODEL_NAME=huggingface/Qwen/Qwen2.5-72B-Instruct
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-COPY start.sh /app/env/start.sh
-RUN chmod +x /app/env/start.sh
-
-CMD ["/app/env/start.sh"]
+CMD ["python", "-m", "uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "8000"]
