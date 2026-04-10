@@ -195,7 +195,7 @@ with IncidentResponseWarRoomEnv(base_url="http://localhost:8000").sync() as env:
 
 Environment variables:
 
-- `HF_TOKEN`
+- `API_KEY`
 - `API_BASE_URL`
 - `MODEL_NAME`
 - `ENV_BASE_URL`
@@ -210,7 +210,7 @@ python inference.py --server-url http://localhost:8000 --task all --no-openai
 Run against a local server with a remote model:
 
 ```bash
-HF_TOKEN=... MODEL_NAME=Qwen/Qwen2.5-72B-Instruct \
+API_KEY=... API_BASE_URL=... MODEL_NAME=Qwen/Qwen2.5-72B-Instruct \
 python inference.py --server-url http://localhost:8000 --task all
 ```
 
@@ -218,7 +218,7 @@ Run against a Docker image instead of a running server:
 
 ```bash
 LOCAL_IMAGE_NAME=incident-response-war-room \
-HF_TOKEN=... MODEL_NAME=Qwen/Qwen2.5-72B-Instruct \
+API_KEY=... API_BASE_URL=... MODEL_NAME=Qwen/Qwen2.5-72B-Instruct \
 python inference.py --task all
 ```
 

@@ -32,7 +32,7 @@ DEFAULT_TEMPERATURE = 0.0
 DEFAULT_MAX_TOKENS = 250
 SUCCESS_SCORE_THRESHOLD = 0.1
 
-HF_TOKEN = os.getenv("HF_TOKEN")
+API_KEY = os.getenv("API_KEY") or os.getenv("HF_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL", DEFAULT_API_BASE_URL)
 MODEL_NAME = os.getenv("MODEL_NAME", DEFAULT_MODEL_NAME)
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
@@ -84,7 +84,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--api-key",
-        default=HF_TOKEN,
+        default=API_KEY,
         help="API key for the selected OpenAI-compatible endpoint.",
     )
     parser.add_argument(
@@ -289,7 +289,7 @@ def create_client(args: argparse.Namespace) -> OpenAI | None:
         return None
     if not args.api_key:
         raise SystemExit(
-            "Remote inference requires --api-key or HF_TOKEN. "
+            "Remote inference requires --api-key or API_KEY. "
             "Use --no-openai to run the heuristic policy."
         )
     return OpenAI(base_url=args.api_base_url, api_key=args.api_key)
