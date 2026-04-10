@@ -201,6 +201,10 @@ Environment variables:
 - `ENV_BASE_URL`
 - `LOCAL_IMAGE_NAME`
 
+For hackathon validation, the agent must use the injected `API_BASE_URL` and
+`API_KEY` for all model calls. `inference.py` does not fall back to `HF_TOKEN`
+or any hardcoded provider URL.
+
 Run against a local server with the built-in heuristic policy:
 
 ```bash

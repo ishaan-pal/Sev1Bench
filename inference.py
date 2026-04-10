@@ -15,27 +15,12 @@ from client import IncidentResponseWarRoomEnv
 from models import ActionType, IncidentAction, ServiceName
 from tasks import list_task_ids
 
-try:
-    from dotenv import load_dotenv
-except ImportError:  # pragma: no cover - optional dependency
-    load_dotenv = None
-
-if load_dotenv is not None:
-    load_dotenv()
-
-
-DEFAULT_API_BASE_URL = "https://router.huggingface.co/v1"
-DEFAULT_MODEL_NAME = "Qwen/Qwen2.5-72B-Instruct"
+DEFAULT_MODEL_NAME = "openai/gpt-4.1-mini"
 DEFAULT_BENCHMARK = "incident_response_war_room"
 DEFAULT_MAX_STEPS = 8
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_MAX_TOKENS = 250
 SUCCESS_SCORE_THRESHOLD = 0.1
-
-API_KEY = os.getenv("API_KEY") or os.getenv("HF_TOKEN")
-API_BASE_URL = os.getenv("API_BASE_URL", DEFAULT_API_BASE_URL)
-MODEL_NAME = os.getenv("MODEL_NAME", DEFAULT_MODEL_NAME)
-LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
 
 SYSTEM_PROMPT = textwrap.dedent(
     """
@@ -74,17 +59,17 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--model-name",
-        default=MODEL_NAME,
+        default=env_or_default("MODEL_NAME", DEFAULT_MODEL_NAME),
         help="Model name for remote inference.",
     )
     parser.add_argument(
         "--api-base-url",
-        default=API_BASE_URL,
+        default=env_or_default("API_BASE_URL"),
         help="OpenAI-compatible base URL for remote inference.",
     )
     parser.add_argument(
         "--api-key",
-        default=API_KEY,
+        default=env_or_default("API_KEY"),
         help="API key for the selected OpenAI-compatible endpoint.",
     )
     parser.add_argument(
@@ -94,7 +79,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--local-image-name",
-        default=LOCAL_IMAGE_NAME,
+        default=env_or_default("LOCAL_IMAGE_NAME"),
         help="Docker image name used when launching the environment via OpenEnv.",
     )
     parser.add_argument(
@@ -287,10 +272,15 @@ async def create_env(args: argparse.Namespace) -> IncidentResponseWarRoomEnv:
 def create_client(args: argparse.Namespace) -> OpenAI | None:
     if args.no_openai:
         return None
+    if not args.api_base_url:
+        raise SystemExit(
+            "Remote inference requires API_BASE_URL. "
+            "Use the injected LiteLLM proxy base URL or pass --no-openai."
+        )
     if not args.api_key:
         raise SystemExit(
-            "Remote inference requires --api-key or API_KEY. "
-            "Use --no-openai to run the heuristic policy."
+            "Remote inference requires API_KEY. "
+            "Use the injected LiteLLM proxy key or pass --no-openai."
         )
     return OpenAI(base_url=args.api_base_url, api_key=args.api_key)
 
