@@ -61,16 +61,6 @@ def parse_args() -> argparse.Namespace:
         help="Model name for remote inference.",
     )
     parser.add_argument(
-        "--api-base-url",
-        default=env_or_default("API_BASE_URL"),
-        help="OpenAI-compatible base URL for remote inference.",
-    )
-    parser.add_argument(
-        "--api-key",
-        default=env_or_default("API_KEY"),
-        help="API key for the selected OpenAI-compatible endpoint.",
-    )
-    parser.add_argument(
         "--server-url",
         default=env_or_default("ENV_BASE_URL"),
         help="Use an already running environment server instead of launching Docker.",
@@ -271,7 +261,11 @@ async def create_env(args: argparse.Namespace) -> IncidentResponseWarRoomEnv:
 def create_client(args: argparse.Namespace):
     if args.no_openai:
         return None
-    return get_llm_client(api_key=args.api_key, base_url=args.api_base_url)
+    # Directly use injected LiteLLM proxy credentials from environment
+    return get_llm_client(
+        api_key=os.environ["API_KEY"],
+        base_url=os.environ["API_BASE_URL"],
+    )
 
 
 async def run_episode(client, task_name: str, args: argparse.Namespace) -> None:

@@ -34,7 +34,7 @@ def test_create_client_requires_proxy_env(monkeypatch):
 
     args = inference.parse_args()
 
-    with pytest.raises(SystemExit, match="API_KEY|API_BASE_URL"):
+    with pytest.raises(SystemExit, match="API_BASE_URL"):
         inference.create_client(args)
 
 
