@@ -13,7 +13,13 @@ from client import IncidentResponseWarRoomEnv, chat_completion, get_llm_client
 from models import ActionType, IncidentAction, ServiceName
 from tasks import list_task_ids
 
-DEFAULT_MODEL_NAME = "openai/gpt-4.1-mini"
+# Environment variables (as required by hackathon checklist)
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:4000")
+MODEL_NAME = os.getenv("MODEL_NAME", "huggingface/Qwen/Qwen2.5-72B-Instruct")
+HF_TOKEN = os.getenv("HF_TOKEN")
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
+
+DEFAULT_MODEL_NAME = "huggingface/Qwen/Qwen2.5-72B-Instruct"
 DEFAULT_BENCHMARK = "incident_response_war_room"
 DEFAULT_MAX_STEPS = 8
 DEFAULT_TEMPERATURE = 0.0
@@ -261,10 +267,10 @@ async def create_env(args: argparse.Namespace) -> IncidentResponseWarRoomEnv:
 def create_client(args: argparse.Namespace):
     if args.no_openai:
         return None
-    # Directly use injected LiteLLM proxy credentials from environment
+    # Use hackathon-injected credentials via os.getenv (set at module top)
     return get_llm_client(
-        api_key=os.environ["HF_TOKEN"],
-        base_url=os.environ["API_BASE_URL"],
+        api_key=HF_TOKEN,
+        base_url=API_BASE_URL,
     )
 
 
