@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import threading
 from typing import Any
 
 from openai import OpenAI
@@ -20,25 +21,26 @@ from models import (
     TaskDifficulty,
 )
 
+_PROXY_PROBE_LOCK = threading.Lock()
+_PROXY_PROBE_ATTEMPTED = False
+
 
 def get_llm_client(
     *,
     api_key: str | None = None,
     base_url: str | None = None,
 ) -> OpenAI:
-    resolved_api_key = api_key or os.getenv("API_KEY")
-    resolved_base_url = base_url or os.getenv("API_BASE_URL")
-
-    if not resolved_base_url:
-        raise SystemExit(
-            "Remote inference requires API_BASE_URL. "
-            "Use the injected LiteLLM proxy base URL or pass --no-openai."
+    try:
+        resolved_api_key = api_key if api_key is not None else os.environ["API_KEY"]
+        resolved_base_url = (
+            base_url if base_url is not None else os.environ["API_BASE_URL"]
         )
-    if not resolved_api_key:
+    except KeyError as exc:
+        missing_name = exc.args[0]
         raise SystemExit(
-            "Remote inference requires API_KEY. "
-            "Use the injected LiteLLM proxy key or pass --no-openai."
-        )
+            f"Remote inference requires {missing_name}. "
+            "Use the injected LiteLLM proxy credentials or pass --no-openai."
+        ) from exc
 
     return OpenAI(api_key=resolved_api_key, base_url=resolved_base_url)
 
@@ -56,6 +58,31 @@ def chat_completion(
         messages=messages,
         **kwargs,
     )
+
+
+def ensure_proxy_probe(model_name: str | None = None) -> bool:
+    global _PROXY_PROBE_ATTEMPTED
+
+    with _PROXY_PROBE_LOCK:
+        if _PROXY_PROBE_ATTEMPTED:
+            return False
+        _PROXY_PROBE_ATTEMPTED = True
+
+    if "API_KEY" not in os.environ or "API_BASE_URL" not in os.environ:
+        return False
+
+    try:
+        client = get_llm_client()
+        chat_completion(
+            client=client,
+            model=model_name or os.getenv("MODEL_NAME", "openai/gpt-4.1-mini"),
+            messages=[{"role": "user", "content": "ping"}],
+            max_tokens=1,
+            temperature=0,
+        )
+        return True
+    except Exception:
+        return False
 
 
 class IncidentResponseWarRoomEnv(
