@@ -248,8 +248,9 @@ def get_model_action(
                 else ServiceName(data["service"])
             ),
         )
-    except Exception:
-        return heuristic_action(observation, state_health)
+    except Exception as e:
+        print(f"[ERROR] LLM call failed: {e}", flush=True)
+        raise
 
 
 async def create_env(args: argparse.Namespace) -> IncidentResponseWarRoomEnv:
@@ -266,10 +267,10 @@ async def create_env(args: argparse.Namespace) -> IncidentResponseWarRoomEnv:
 def create_client(args: argparse.Namespace):
     if args.no_openai:
         return None
-    # Use hackathon-injected credentials via os.getenv (set at module top)
+    # Strictly use injected env vars as required by hackathon
     return get_llm_client(
-        api_key=API_KEY,
-        base_url=API_BASE_URL,
+        api_key=os.environ.get("API_KEY") or os.environ.get("HF_TOKEN"),
+        base_url=os.environ.get("API_BASE_URL", "https://router.huggingface.co/v1"),
     )
 
 
