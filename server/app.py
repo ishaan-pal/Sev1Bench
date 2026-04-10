@@ -6,8 +6,8 @@ import os
 import threading
 
 from openenv.core.env_server.http_server import create_app
-from openai import OpenAI
 
+from llm.client import chat_completion, get_llm_client
 from models import IncidentAction, IncidentObservation
 
 from .incident_response_environment import IncidentResponseEnvironment
@@ -30,8 +30,9 @@ def _proxy_warmup() -> None:
         return
 
     try:
-        client = OpenAI(base_url=api_base_url, api_key=api_key)
-        client.chat.completions.create(
+        client = get_llm_client(api_key=api_key, base_url=api_base_url)
+        chat_completion(
+            client=client,
             model=model_name,
             messages=[{"role": "user", "content": "ping"}],
             max_tokens=1,

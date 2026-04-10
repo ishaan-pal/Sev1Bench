@@ -9,9 +9,8 @@ import os
 import textwrap
 from typing import Optional
 
-from openai import OpenAI
-
 from client import IncidentResponseWarRoomEnv
+from llm.client import chat_completion, get_llm_client
 from models import ActionType, IncidentAction, ServiceName
 from tasks import list_task_ids
 
@@ -219,7 +218,7 @@ def build_user_prompt(
 
 
 def get_model_action(
-    client: OpenAI | None,
+    client,
     task_name: str,
     observation: dict,
     state_health: float,
@@ -234,7 +233,8 @@ def get_model_action(
 
     user_prompt = build_user_prompt(task_name, observation, state_health, step, history)
     try:
-        completion = client.chat.completions.create(
+        completion = chat_completion(
+            client=client,
             model=model_name,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -269,23 +269,13 @@ async def create_env(args: argparse.Namespace) -> IncidentResponseWarRoomEnv:
     )
 
 
-def create_client(args: argparse.Namespace) -> OpenAI | None:
+def create_client(args: argparse.Namespace):
     if args.no_openai:
         return None
-    if not args.api_base_url:
-        raise SystemExit(
-            "Remote inference requires API_BASE_URL. "
-            "Use the injected LiteLLM proxy base URL or pass --no-openai."
-        )
-    if not args.api_key:
-        raise SystemExit(
-            "Remote inference requires API_KEY. "
-            "Use the injected LiteLLM proxy key or pass --no-openai."
-        )
-    return OpenAI(base_url=args.api_base_url, api_key=args.api_key)
+    return get_llm_client(api_key=args.api_key, base_url=args.api_base_url)
 
 
-async def run_episode(client: OpenAI | None, task_name: str, args: argparse.Namespace) -> None:
+async def run_episode(client, task_name: str, args: argparse.Namespace) -> None:
     env: IncidentResponseWarRoomEnv | None = None
     rewards: list[float] = []
     steps_taken = 0
