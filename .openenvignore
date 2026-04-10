@@ -6,5 +6,6 @@ config/
 .git/
 .agents/
 .env.zip
+inference.zip
 __pycache__/
 *.egg-info/

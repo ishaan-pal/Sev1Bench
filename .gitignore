@@ -12,6 +12,7 @@ wheels/
 # Local environment configuration
 .env
 .env.zip
+inference.zip
 
 # Local tooling and workspace state
 .agents/
