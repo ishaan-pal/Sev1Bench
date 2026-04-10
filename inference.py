@@ -13,11 +13,10 @@ from client import IncidentResponseWarRoomEnv, chat_completion, get_llm_client
 from models import ActionType, IncidentAction, ServiceName
 from tasks import list_task_ids
 
-# Environment variables (as required by hackathon checklist)
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:4000")
-MODEL_NAME = os.getenv("MODEL_NAME", "huggingface/Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN = os.getenv("HF_TOKEN")
-LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")  # If you are using docker image
+API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
+MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
 
 DEFAULT_MODEL_NAME = "huggingface/Qwen/Qwen2.5-72B-Instruct"
 DEFAULT_BENCHMARK = "incident_response_war_room"
@@ -269,7 +268,7 @@ def create_client(args: argparse.Namespace):
         return None
     # Use hackathon-injected credentials via os.getenv (set at module top)
     return get_llm_client(
-        api_key=HF_TOKEN,
+        api_key=API_KEY,
         base_url=API_BASE_URL,
     )
 
