@@ -9,8 +9,7 @@ import os
 import textwrap
 from typing import Optional
 
-from client import IncidentResponseWarRoomEnv
-from llm.client import chat_completion, get_llm_client
+from client import IncidentResponseWarRoomEnv, chat_completion, get_llm_client
 from models import ActionType, IncidentAction, ServiceName
 from tasks import list_task_ids
 

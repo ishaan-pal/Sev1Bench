@@ -51,7 +51,7 @@ def test_create_client_uses_shared_proxy_client(monkeypatch):
 
 
 def test_chat_completion_logs_proxy_route(capsys):
-    llm_client = importlib.import_module("llm.client")
+    client_module = importlib.import_module("client")
 
     fake_client = SimpleNamespace(
         base_url="https://proxy.example/v1",
@@ -62,7 +62,7 @@ def test_chat_completion_logs_proxy_route(capsys):
         ),
     )
 
-    result = llm_client.chat_completion(
+    result = client_module.chat_completion(
         client=fake_client,
         model="qwen",
         messages=[{"role": "user", "content": "ping"}],

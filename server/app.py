@@ -7,7 +7,7 @@ import threading
 
 from openenv.core.env_server.http_server import create_app
 
-from llm.client import chat_completion, get_llm_client
+from client import chat_completion, get_llm_client
 from models import IncidentAction, IncidentObservation
 
 from .incident_response_environment import IncidentResponseEnvironment
