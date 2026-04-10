@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openenv-incident-response-war-room"
+version = "0.1.0"
+description = "Incident Response War Room environment for OpenEnv"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.110.0,<1.0.0",
+    "huggingface-hub>=1.10.1",
+    "openai>=1.0.0,<3.0.0",
+    "openenv-core[cli]>=0.2.3,<1.0.0",
+    "pydantic>=2.0.0,<3.0.0",
+    "uvicorn>=0.30.0,<1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+py-modules = ["client", "grader", "models", "simulator", "tasks", "inference"]
+
+[tool.setuptools.packages.find]
+include = ["server*"]
