@@ -31,7 +31,7 @@ def get_llm_client(
     base_url: str | None = None,
 ) -> OpenAI:
     try:
-        resolved_api_key = api_key if api_key is not None else os.environ["API_KEY"]
+        resolved_api_key = api_key if api_key is not None else os.environ["HF_TOKEN"]
         resolved_base_url = (
             base_url if base_url is not None else os.environ["API_BASE_URL"]
         )
@@ -68,7 +68,7 @@ def ensure_proxy_probe(model_name: str | None = None) -> bool:
             return False
         _PROXY_PROBE_ATTEMPTED = True
 
-    if "API_KEY" not in os.environ or "API_BASE_URL" not in os.environ:
+    if "HF_TOKEN" not in os.environ or "API_BASE_URL" not in os.environ:
         return False
 
     try:

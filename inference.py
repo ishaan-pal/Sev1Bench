@@ -263,7 +263,7 @@ def create_client(args: argparse.Namespace):
         return None
     # Directly use injected LiteLLM proxy credentials from environment
     return get_llm_client(
-        api_key=os.environ["API_KEY"],
+        api_key=os.environ["HF_TOKEN"],
         base_url=os.environ["API_BASE_URL"],
     )
 
